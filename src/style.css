@@ -1,3 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Rochester&family=Big+Shoulders+Stencil+Display:wght@400;500;600;700&display=swap');
+
 body {
   background-color: #000;
+}
+
+.big-shoulders {
+  font-family: 'Big Shoulders Stencil Display', sans-serif;
+}
+
+@font-face {
+    font-family: 'Bellina';
+    src: url('https://dl.polyhaven.org/file/ph-assets/Fonts/bellina.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'Gilroy';
+    src: url('path/to/gilroy.woff2') format('woff2');
+  }
+
+@font-face {
+  font-family: 'Bytesized';
+  src: url('/Bytesized/Bytesized-Regular.ttf') format('truetype');
 }
