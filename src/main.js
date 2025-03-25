@@ -16,7 +16,6 @@ const renderer = new THREE.WebGLRenderer({
 
 const radius = 1.3;
 const segments = 64;
-const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00];
 const textures = [
   './csilla/color.png',
   './earth/map.jpg',
@@ -41,8 +40,7 @@ const starfieldMaterial = new THREE.MeshStandardMaterial({
 const starfield = new THREE.Mesh(starfieldGeometry, starfieldMaterial);
 scene.add(starfield);
 
-
-
+const spheresMesh = [];
 
 for (let i = 0; i < 4; i++) {
 
@@ -54,7 +52,7 @@ for (let i = 0; i < 4; i++) {
   const material = new THREE.MeshStandardMaterial({ map: texture });
   const sphere = new THREE.Mesh(geometry, material);
 
-
+  spheresMesh.push(sphere);
 
   const angle = (i * Math.PI * 2) / 4;
   sphere.position.x = orbitRadius*Math.cos(angle);
@@ -120,10 +118,14 @@ window.addEventListener('wheel', (event) => {
   }
 });
 
+const clock = new THREE.Clock();
 
 // Animation loop
 function animate() {
   requestAnimationFrame(animate);
+  for(let i = 0; i < spheresMesh.length; i++){
+    spheresMesh[i].rotation.y = clock.getElapsedTime() * 0.035;
+  }
   renderer.render(scene, camera);
 }
 animate();
