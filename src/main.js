@@ -12,8 +12,6 @@ const renderer = new THREE.WebGLRenderer({
   antialias: true
 });
 
-
-
 const radius = 1.3;
 const segments = 64;
 const textures = [
@@ -21,7 +19,7 @@ const textures = [
   './earth/map.jpg',
   './venus/map.jpg',
   './volcanic/color.png'
-]
+];
 const spheres = new THREE.Group();
 const orbitRadius = 4.5;
 
@@ -43,7 +41,6 @@ scene.add(starfield);
 const spheresMesh = [];
 
 for (let i = 0; i < 4; i++) {
-
   const textureLoader = new THREE.TextureLoader();
   const texture = textureLoader.load(textures[i]);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -55,8 +52,8 @@ for (let i = 0; i < 4; i++) {
   spheresMesh.push(sphere);
 
   const angle = (i * Math.PI * 2) / 4;
-  sphere.position.x = orbitRadius*Math.cos(angle);
-  sphere.position.z = orbitRadius*Math.sin(angle);
+  sphere.position.x = orbitRadius * Math.cos(angle);
+  sphere.position.z = orbitRadius * Math.sin(angle);
 
   spheres.add(sphere);
 }
@@ -70,11 +67,9 @@ loader.load('https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/moonlit_golf_1
   scene.environment = texture;
 });
 
-
 // Set renderer size and pixel ratio
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
- 
 
 // Position camera
 camera.position.z = 9;
@@ -83,13 +78,39 @@ let lastScrollTime = 0;
 const scrollThrottleDelay = 2000; // 2 seconds
 let scrollCount = 0;
 
-window.addEventListener('wheel', (event) => {
+let lastTouchY = 0;
+let isTouching = false;
+
+// Event listeners for both wheel (desktop) and touch (mobile)
+window.addEventListener('wheel', handleScroll);
+window.addEventListener('touchstart', (event) => {
+  lastTouchY = event.touches[0].clientY;
+  isTouching = true;
+});
+window.addEventListener('touchmove', handleTouchScroll);
+window.addEventListener('touchend', () => {
+  isTouching = false;
+});
+
+function handleScroll(event) {
+  handleScrollEffect(event.deltaY > 0 ? 'down' : 'up');
+}
+
+function handleTouchScroll(event) {
+  if (!isTouching) return;
+  
+  const currentTouchY = event.touches[0].clientY;
+  const direction = currentTouchY < lastTouchY ? 'down' : 'up';
+
+  lastTouchY = currentTouchY;
+  
+  handleScrollEffect(direction);
+}
+
+function handleScrollEffect(direction) {
   const currentTime = Date.now();
   
   if (currentTime - lastScrollTime >= scrollThrottleDelay) {
-    
-    const direction = event.deltaY > 0 ? 'down' : 'up';
-
     scrollCount = (scrollCount + 1) % 4;
 
     const headings = document.querySelectorAll('.heading');
@@ -101,29 +122,30 @@ window.addEventListener('wheel', (event) => {
       stagger: 0.2
     });
 
-    gsap.to(spheres.rotation,{
+    gsap.to(spheres.rotation, {
       duration: 1,
-      y: `-=${Math.PI/2}%`,
-      ease: 'power2.inOut', 
-    })
+      y: `-=${Math.PI / 2}`,
+      ease: 'power2.inOut',
+    });
 
-    if(scrollCount === 0){
+    if (scrollCount === 0) {
       gsap.to(headings, {
         y: `0`,
         duration: 1,
         ease: 'power2.inOut',
       });
     }
+
     lastScrollTime = currentTime;
   }
-});
+}
 
 const clock = new THREE.Clock();
 
 // Animation loop
 function animate() {
   requestAnimationFrame(animate);
-  for(let i = 0; i < spheresMesh.length; i++){
+  for (let i = 0; i < spheresMesh.length; i++) {
     spheresMesh[i].rotation.y = clock.getElapsedTime() * 0.035;
   }
   renderer.render(scene, camera);
@@ -136,4 +158,3 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
-
