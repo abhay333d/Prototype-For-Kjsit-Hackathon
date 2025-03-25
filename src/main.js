@@ -81,6 +81,45 @@ renderer.setPixelRatio(window.devicePixelRatio);
 // Position camera
 camera.position.z = 9;
 
+let lastScrollTime = 0;
+const scrollThrottleDelay = 2000; // 2 seconds
+let scrollCount = 0;
+
+window.addEventListener('wheel', (event) => {
+  const currentTime = Date.now();
+  
+  if (currentTime - lastScrollTime >= scrollThrottleDelay) {
+    
+    const direction = event.deltaY > 0 ? 'down' : 'up';
+
+    scrollCount = (scrollCount + 1) % 4;
+
+    const headings = document.querySelectorAll('.heading');
+
+    gsap.to(headings, {
+      y: `-=${100}%`,
+      duration: 1,
+      ease: 'power2.inOut',
+      stagger: 0.2
+    });
+
+    gsap.to(spheres.rotation,{
+      duration: 1,
+      y: `-=${Math.PI/2}%`,
+      ease: 'power2.inOut', 
+    })
+
+    if(scrollCount === 0){
+      gsap.to(headings, {
+        y: `0`,
+        duration: 1,
+        ease: 'power2.inOut',
+      });
+    }
+    lastScrollTime = currentTime;
+  }
+});
+
 
 // Animation loop
 function animate() {
