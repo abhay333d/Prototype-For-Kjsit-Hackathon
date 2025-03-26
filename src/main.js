@@ -158,3 +158,74 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+
+//AR Part
+
+window.addEventListener('DOMContentLoaded', () => {
+  const arButton = document.getElementById('ar-button');
+  // const supported = navigator.xr && navigator.xr.supportsSession('immersive-ar');
+  // if(!supported){
+  //   arButton.textContent = 'AR Not Supported';
+  //   arButton.disabled = true;
+  //   return;
+  // }
+  const initializeAR = () => {
+    const boxGeometry = new THREE.BoxGeometry(0.06, 0.06, 0.06);
+    const boxMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    const box = new THREE.Mesh(boxGeometry, boxMaterial);
+    box.position.set(0, 0, -0.3);
+    scene.add(box);
+
+    const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
+    hemisphereLight.position.set(0, 1, 0);
+    scene.add(hemisphereLight);
+
+    let currentSession = null;
+    //Start
+    const startAR = async() => {
+      currentSession = await navigator.xr.requestSession('immersive-ar',{optionalFeatures:['dom-overlay'],domOverlay:{root:document.body}});
+      renderer.xr.enabled = true;
+      renderer.xr.setReferenceSpaceType('local');
+      await renderer.xr.setSession(currentSession);
+      arButton.textContent = 'Stop AR';
+
+      renderer.setAnimationLoop(() => {
+        renderer.render(scene, camera);
+      });};
+
+      const controller = renderer.xr.getController(0);
+
+      controller.addEventListener('selectstart', ()=>{
+        console.log('selectstart');
+      });
+
+      controller.addEventListener('selectend', ()=>{
+        console.log('selectend');
+      }); 
+
+      controller.addEventListener('select', ()=>{
+        console.log('select');
+      });
+
+      const end = async() => {
+        currentSession.end();
+        renderer.clear();
+        renderer.setAnimationLoop(null);
+        arButton.style.display = 'none';
+
+        // Refresh the website
+        window.location.reload();
+      };
+      arButton.addEventListener('click', ()=>{
+        if(currentSession){
+          end();
+        }else{
+          startAR();
+        }
+      });
+    };
+
+
+  initializeAR();
+});

@@ -8,6 +8,19 @@ body {
   font-family: 'Big Shoulders Stencil Display', sans-serif;
 }
 
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 3s linear infinite;
+}
+
 @font-face {
     font-family: 'Bellina';
     src: url('https://dl.polyhaven.org/file/ph-assets/Fonts/bellina.woff2') format('woff2');
