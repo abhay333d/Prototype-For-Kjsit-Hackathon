@@ -1,51 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Prototype</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="./src/style.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Tektur:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./src/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Tektur:wght@400;500;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
   <div class="w-full h-screen overflow-hidden">
-  <div class="w-full h-screen absolute top-0 left-0 z-10 text-white font-['Helvetica Now Display'] " >
-    <nav class="w-full py-8 px-10 flex  justify-between items-center" >
-      <h3>Solar</h3>
-      <div class="flex gap-6" >
-        <a class="text-sm" href="#">Home</a>
-        <a class="text-sm" href="#">About</a>
-        <a class="text-sm" href="#">Contact</a>
+    <div id="main" class="w-full h-screen absolute top-0 left-0 z-10 text-white font-['Helvetica Now Display']">
+      <!-- Original Nav Bar -->
+      <nav id="nav-bar" class="w-full py-8 px-10 flex justify-between items-center">
+        <h3>Solar</h3>
+        <div class="flex gap-6">
+          <a class="text-sm" href="#">Home</a>
+          <a class="text-sm" href="#">About</a>
+          <a class="text-sm" href="#">Contact</a>
+        </div>
+      </nav>
+
+      <!-- AR Menu (hidden initially) -->
+      <div id="ar-menu" class="absolute top-0 left-0 w-full flex justify-around items-center p-4 bg-black/60" style="display: none;">
+        <button class="ar-menu-item text-white" data-model-index="0">Earth</button>
+        <button class="ar-menu-item text-white" data-model-index="1">Scilla</button>
+        <button class="ar-menu-item text-white" data-model-index="2">Volcanic</button>
+        <button class="ar-menu-item text-white" data-model-index="3">Venus</button>
       </div>
-    </nav>
-    <div class="absolute top-[12%] md:top-[5%] left-1/2 -translate-x-1/2 text-center">
-      <div class="w-full h-[4em] md:h-[7em] overflow-hidden">
-        <h1 class="heading h-full text-7xl md:text-8xl font-light tracking-tighter big-shoulders" >Earth</h1>
-        <h1 class="heading h-full text-7xl md:text-8xl font-light tracking-tighter big-shoulders" >Scilla</h1>
-        <h1 class="heading h-full text-7xl md:text-8xl font-light tracking-tighter big-shoulders" >Volcanic</h1>
-        <h1 class="heading h-full text-7xl md:text-8xl font-light tracking-tighter big-shoulders" >Venus</h1>
+
+      <!-- Original Headings container (hidden in AR) -->
+      <div id="headings" class="absolute top-[12%] md:top-[5%] left-1/2 -translate-x-1/2 text-center">
+        <div class="w-full h-[4em] md:h-[7em] overflow-hidden">
+          <h1 class="heading h-full text-7xl md:text-8xl font-light tracking-tighter big-shoulders">Earth</h1>
+          <h1 class="heading h-full text-7xl md:text-8xl font-light tracking-tighter big-shoulders">Scilla</h1>
+          <h1 class="heading h-full text-7xl md:text-8xl font-light tracking-tighter big-shoulders">Volcanic</h1>
+          <h1 class="heading h-full text-7xl md:text-8xl font-light tracking-tighter big-shoulders">Venus</h1>
+        </div>
+        <div class="w-96 h-[1px] bg-gradient-to-l from-transparent via-white to-transparent mt-6"></div>
+        <!-- AR Button remains visible -->
+        <button id="ar-button" class="mt-6 px-6 py-2 bg-black/40 backdrop-blur-sm rounded-full text-white font-semibold text-sm transform transition-all duration-500 hover:scale-105 hover:shadow-[0_0_20px_rgba(147,51,234,0.3)] active:scale-95 group relative overflow-hidden border border-purple-500/30">
+          <span class="relative z-10 flex items-center gap-1.5">
+            <svg class="w-4 h-4 transform group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Explore in AR
+          </span>
+          <div class="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(147,51,234,0.15)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <div class="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(147,51,234,0.1)_50%,transparent_75%)] bg-[length:250%_250%] opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-shimmer"></div>
+        </button>
       </div>
-      <div class="w-96 h-[1px] bg-gradient-to-l from-transparent via-white to-transparent mt-6"></div>
-      <button id="ar-button" class="mt-6 px-6 py-2 bg-black/40 backdrop-blur-sm rounded-full text-white font-semibold text-sm transform transition-all duration-500 hover:scale-105 hover:shadow-[0_0_20px_rgba(147,51,234,0.3)] active:scale-95 group relative overflow-hidden border border-purple-500/30">
-        <span class="relative z-10 flex items-center gap-1.5">
-          <svg class="w-4 h-4 transform group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-          </svg>
-          Explore in AR
-        </span>
-        <div class="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(147,51,234,0.15)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-        <div class="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(147,51,234,0.1)_50%,transparent_75%)] bg-[length:250%_250%] opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-shimmer"></div>
-      </button>
-      
     </div>
-  </div>
     <canvas id="canvas"></canvas>
   </div>
-
   <script type="module" src="./src/main.js"></script>
 </body>
 </html>
