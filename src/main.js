@@ -1,7 +1,8 @@
+import './style.css'
 import * as THREE from 'three';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
 import gsap from 'gsap';
-
+import ARManager from './ar';
 // Initialize scene, camera, and renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
@@ -76,92 +77,8 @@ renderer.setPixelRatio(window.devicePixelRatio);
 camera.position.z = 9;
 
 /* AR Initialization */
-window.addEventListener('DOMContentLoaded', () => {
-  const arButton = document.getElementById('ar-button');
-  let currentSession = null;
-  // Flag to check if the 3D models have been revealed in AR
-  let modelsShown = false;
+ARManager();
 
-  const startAR = async () => {
-    try {
-      currentSession = await navigator.xr.requestSession('immersive-ar', {
-        optionalFeatures: ['dom-overlay'],
-        domOverlay: { root: document.body }
-      });
-      renderer.xr.enabled = true;
-      renderer.xr.setReferenceSpaceType('local');
-      await renderer.xr.setSession(currentSession);
-      arButton.textContent = 'Stop AR';
-      
-      // Hide only the headings and the 3D models (spheres)
-      const headings = document.getElementById('headings');
-      if (headings) {
-        headings.style.display = 'none';
-      }
-      spheres.visible = false;
-      
-      // Setup controller event listener(s)
-      setupController();
-
-      renderer.setAnimationLoop(() => {
-        renderer.render(scene, camera);
-      });
-    } catch (error) {
-      console.error('Failed to start AR session:', error);
-    }
-  };
-
-  const endAR = async () => {
-    if (currentSession) {
-      await currentSession.end();
-      renderer.setAnimationLoop(null);
-      arButton.textContent = 'Explore in AR';
-      // Refresh the page to restore the original state (including the headings)
-      window.location.reload();
-    }
-  };
-
-  arButton.addEventListener('click', () => {
-    if (currentSession) {
-      endAR();
-      currentSession = null;
-    } else {
-      startAR();
-    }
-  });
-
-  /* Controller Setup Function */
-  function setupController() {
-    const controller = renderer.xr.getController(0);
-    scene.add(controller);
-
-    // Try both "selectstart" and "select" events for broader compatibility
-    controller.addEventListener('selectstart', onSelect);
-    controller.addEventListener('select', onSelect);
-
-    function onSelect() {
-      console.log('Controller event triggered.');
-      // On first click, reveal the spheres
-      if (!modelsShown) {
-        spheres.visible = true;
-        modelsShown = true;
-        console.log('3D models are now visible.');
-        return;
-      }
-      
-      // Subsequent taps spawn a box
-      console.log('Spawning a box.');
-      const boxGeometry = new THREE.BoxGeometry(0.06, 0.06, 0.06);
-      const boxMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-      const box = new THREE.Mesh(boxGeometry, boxMaterial);
-      
-      // Set box position and orientation based on the controller's world matrix
-      box.position.setFromMatrixPosition(controller.matrixWorld);
-      box.quaternion.setFromRotationMatrix(controller.matrixWorld);
-      scene.add(box);
-    }
-  }
-});
 
 /* Scroll-triggered animations */
 let lastScrollTime = 0;
@@ -170,47 +87,60 @@ let scrollCount = 0;
 let lastTouchY = 0;
 let isTouching = false;
 
-window.addEventListener('wheel', (event) => {
-  handleScrollEffect(event.deltaY > 0 ? 'down' : 'up');
-});
+window.addEventListener('wheel', handleScroll);
 window.addEventListener('touchstart', (event) => {
   lastTouchY = event.touches[0].clientY;
   isTouching = true;
 });
-window.addEventListener('touchmove', (event) => {
-  if (!isTouching) return;
-  const currentTouchY = event.touches[0].clientY;
-  const direction = currentTouchY < lastTouchY ? 'down' : 'up';
-  lastTouchY = currentTouchY;
-  handleScrollEffect(direction);
-});
+window.addEventListener('touchmove', handleTouchScroll);
 window.addEventListener('touchend', () => {
   isTouching = false;
 });
 
+function handleScroll(event) {
+  handleScrollEffect(event.deltaY > 0 ? 'down' : 'up');
+}
+
+function handleTouchScroll(event) {
+  if (!isTouching) return;
+  
+  const currentTouchY = event.touches[0].clientY;
+  const direction = currentTouchY < lastTouchY ? 'down' : 'up';
+
+  lastTouchY = currentTouchY;
+  
+  handleScrollEffect(direction);
+}
+
 function handleScrollEffect(direction) {
   const currentTime = Date.now();
+  
   if (currentTime - lastScrollTime >= scrollThrottleDelay) {
     scrollCount = (scrollCount + 1) % 4;
+
     const headings = document.querySelectorAll('.heading');
+
     gsap.to(headings, {
-      y: '-=100%',
+      y: `-=${100}%`,
       duration: 1,
       ease: 'power2.inOut',
       stagger: 0.2
     });
+
     gsap.to(spheres.rotation, {
       duration: 1,
       y: `-=${Math.PI / 2}`,
-      ease: 'power2.inOut'
+      ease: 'power2.inOut',
     });
+
     if (scrollCount === 0) {
       gsap.to(headings, {
-        y: '0',
+        y: `0`,
         duration: 1,
-        ease: 'power2.inOut'
+        ease: 'power2.inOut',
       });
     }
+
     lastScrollTime = currentTime;
   }
 }
@@ -219,9 +149,9 @@ function handleScrollEffect(direction) {
 const clock = new THREE.Clock();
 function animate() {
   requestAnimationFrame(animate);
-  spheresMesh.forEach((sphere) => {
-    sphere.rotation.y = clock.getElapsedTime() * 0.035;
-  });
+  for (let i = 0; i < spheresMesh.length; i++) {
+    spheresMesh[i].rotation.y = clock.getElapsedTime() * 0.035;
+  }
   renderer.render(scene, camera);
 }
 animate();
