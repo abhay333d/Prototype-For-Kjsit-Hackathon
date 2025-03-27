@@ -162,7 +162,17 @@ const ARManager = () => {
             
             let currentSession = null;
             const start = async () => {
+                try {
                 currentSession = await navigator.xr.requestSession('immersive-ar');
+                } catch (error) {
+                    console.error('Failed to start AR session:', error);
+                    if(error.name==='NotSupportedError') {
+                        alert('AR/XR hardware not found. Please connect an AR/XR device or try a compatible device.');
+                    }
+                    else {
+                        alert(`AR session failed: ${error.message}`);
+                    }
+                }
                 arRenderer.xr.enabled = true;
                 arRenderer.xr.setReferenceSpaceType('local');
                 await arRenderer.xr.setSession(currentSession);

@@ -136,6 +136,39 @@ function handleTouchScroll(event) {
   handleScrollEffect(direction);
 }
 
+// function handleScrollEffect(direction) {
+//   const currentTime = Date.now();
+  
+//   if (currentTime - lastScrollTime >= scrollThrottleDelay) {
+//     scrollCount = (scrollCount + 1) % 4;
+
+//     const headings = document.querySelectorAll('.heading');
+
+//     gsap.to(headings, {
+//       y: `-=${100}%`,
+//       duration: 1,
+//       ease: 'power2.inOut',
+//       stagger: 0.2
+//     });
+
+//     gsap.to(spheres.rotation, {
+//       duration: 1,
+//       y: `-=${Math.PI / 2}`,
+//       ease: 'power2.inOut',
+//     });
+
+//     if (scrollCount === 0) {
+//       gsap.to(headings, {
+//         y: `0`,
+//         duration: 1,
+//         ease: 'power2.inOut',
+//       });
+//     }
+
+//     lastScrollTime = currentTime;
+//   }
+// }
+
 function handleScrollEffect(direction) {
   const currentTime = Date.now();
   
@@ -145,7 +178,7 @@ function handleScrollEffect(direction) {
     const headings = document.querySelectorAll('.heading');
 
     gsap.to(headings, {
-      y: `-=${100}%`,
+      y: `-${100 * scrollCount}%`, // Set absolute y position based on scrollCount
       duration: 1,
       ease: 'power2.inOut',
       stagger: 0.2
