@@ -25,8 +25,8 @@ const radius = 1.3;
 const segments = 32; // Reduced from 64 for better performance
 const textures = [
   './csilla/color.png',
-  './earth/map.jpg',
-  './venus/map.jpg',
+  './earth/map.png',
+  './venus/map.png',
   './volcanic/color.png'
 ];
 

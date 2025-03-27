@@ -46,10 +46,10 @@ const ARManager = () => {
             const radius = 0.04;
             const segments = 64;
             const textures = [
-                './earth/map.jpg',
+                './earth/map.png',
                 './csilla/color.png',
                 './volcanic/color.png',
-                './venus/map.jpg'
+                './venus/map.png'
             ];
 
             const models = textures.map(texturePath => {
