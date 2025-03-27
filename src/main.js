@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
 import gsap from 'gsap';
 import ARManager from './ar';
+
 // Initialize scene, camera, and renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
@@ -16,24 +17,32 @@ const renderer = new THREE.WebGLRenderer({
   antialias: true
 });
 
+// Optimize renderer
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limit pixel ratio
+renderer.setSize(window.innerWidth, window.innerHeight);
+
 const radius = 1.3;
-const segments = 64;
+const segments = 32; // Reduced from 64 for better performance
 const textures = [
   './csilla/color.png',
   './earth/map.jpg',
   './venus/map.jpg',
   './volcanic/color.png'
 ];
-const spheres = new THREE.Group();
-const orbitRadius = 4.5;
-const spheresMesh = [];
 
-// Create starfield background
-const starfieldGeometry = new THREE.SphereGeometry(50, 64, 64);
-const starfieldTexture = new THREE.TextureLoader().load('./stars.jpg');
+// Create texture loader with optimizations
+const textureLoader = new THREE.TextureLoader();
+textureLoader.crossOrigin = 'anonymous';
+
+// Create starfield background with optimized texture
+const starfieldGeometry = new THREE.SphereGeometry(50, 32, 32); // Reduced segments
+const starfieldTexture = textureLoader.load('./stars.jpg');
 starfieldTexture.colorSpace = THREE.SRGBColorSpace;
 starfieldTexture.wrapS = THREE.RepeatWrapping;
 starfieldTexture.wrapT = THREE.RepeatWrapping;
+starfieldTexture.minFilter = THREE.LinearFilter;
+starfieldTexture.generateMipmaps = false; // Disable mipmaps for better performance
+
 const starfieldMaterial = new THREE.MeshStandardMaterial({
   map: starfieldTexture,
   side: THREE.BackSide,
@@ -44,12 +53,29 @@ const starfield = new THREE.Mesh(starfieldGeometry, starfieldMaterial);
 scene.add(starfield);
 
 // Create spheres and add them to the group
-for (let i = 0; i < 4; i++) {
-  const textureLoader = new THREE.TextureLoader();
-  const texture = textureLoader.load(textures[i]);
+const spheres = new THREE.Group();
+const orbitRadius = 4.5;
+const spheresMesh = [];
+
+// Load textures with optimizations
+const planetTextures = textures.map(texturePath => {
+  const texture = textureLoader.load(texturePath);
   texture.colorSpace = THREE.SRGBColorSpace;
+  texture.minFilter = THREE.LinearFilter;
+  texture.generateMipmaps = false; // Disable mipmaps
+  texture.anisotropy = 1; // Reduce anisotropy
+  return texture;
+});
+
+// Create spheres with optimized materials
+for (let i = 0; i < 4; i++) {
   const geometry = new THREE.SphereGeometry(radius, segments, segments);
-  const material = new THREE.MeshStandardMaterial({ map: texture });
+  const material = new THREE.MeshStandardMaterial({ 
+    map: planetTextures[i],
+    envMapIntensity: 1.0,
+    roughness: 0.8,
+    metalness: 0.2
+  });
   const sphere = new THREE.Mesh(geometry, material);
   spheresMesh.push(sphere);
   const angle = (i * Math.PI * 2) / 4;
@@ -61,24 +87,22 @@ spheres.rotation.x = 0.1;
 spheres.position.y = -0.8;
 scene.add(spheres);
 
-// Load environment texture
+// Load environment texture with optimizations
 const loader = new RGBELoader();
 loader.load(
   'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/moonlit_golf_1k.hdr',
   (texture) => {
     texture.mapping = THREE.EquirectangularReflectionMapping;
+    texture.minFilter = THREE.LinearFilter;
+    texture.generateMipmaps = false;
     scene.environment = texture;
   }
 );
 
-// Set renderer size and camera position
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(window.devicePixelRatio);
 camera.position.z = 9;
 
 /* AR Initialization */
 ARManager();
-
 
 /* Scroll-triggered animations */
 let lastScrollTime = 0;

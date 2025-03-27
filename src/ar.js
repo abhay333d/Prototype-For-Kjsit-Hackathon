@@ -27,22 +27,26 @@ const ARManager = () => {
                 canvas: arCanvas,
                 alpha: true
             });
+            
+            // Optimize renderer
+            arRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             arRenderer.setSize(window.innerWidth, window.innerHeight);
-            arRenderer.setPixelRatio(window.devicePixelRatio);
 
-            // Load environment texture
+            // Load environment texture with optimizations
             const loader = new RGBELoader();
             loader.load(
                 'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/moonlit_golf_1k.hdr',
                 (texture) => {
                     texture.mapping = THREE.EquirectangularReflectionMapping;
+                    texture.minFilter = THREE.LinearFilter;
+                    texture.generateMipmaps = false;
                     arScene.environment = texture;
                 }
             );
 
-            // Create model templates
+            // Create model templates with optimizations
             const radius = 0.04;
-            const segments = 64;
+            const segments = 32; // Reduced from 64 for better performance
             const textures = [
                 './earth/map.jpg',
                 './csilla/color.png',
@@ -50,14 +54,27 @@ const ARManager = () => {
                 './venus/map.jpg'
             ];
 
-            const models = textures.map(texturePath => {
-                const textureLoader = new THREE.TextureLoader();
+            // Create texture loader with optimizations
+            const textureLoader = new THREE.TextureLoader();
+            textureLoader.crossOrigin = 'anonymous';
+
+            // Load textures with optimizations
+            const planetTextures = textures.map(texturePath => {
                 const texture = textureLoader.load(texturePath);
                 texture.colorSpace = THREE.SRGBColorSpace;
+                texture.minFilter = THREE.LinearFilter;
+                texture.generateMipmaps = false; // Disable mipmaps
+                texture.anisotropy = 1; // Reduce anisotropy
+                return texture;
+            });
+
+            const models = planetTextures.map(texture => {
                 const geometry = new THREE.SphereGeometry(radius, segments, segments);
                 const material = new THREE.MeshStandardMaterial({ 
                     map: texture,
-                    envMapIntensity: 1.0
+                    envMapIntensity: 1.0,
+                    roughness: 0.8,
+                    metalness: 0.2
                 });
                 return new THREE.Mesh(geometry, material);
             });
@@ -70,7 +87,7 @@ const ARManager = () => {
             const controller = arRenderer.xr.getController(0);
             arScene.add(controller);
 
-            // Create AR Menu
+            // Create AR Menu with optimized textures
             const menuGroup = new THREE.Group();
             const menuGeometry = new THREE.PlaneGeometry(0.3, 0.4);
             const menuMaterial = new THREE.MeshBasicMaterial({ 
@@ -82,21 +99,23 @@ const ARManager = () => {
             const menuBackground = new THREE.Mesh(menuGeometry, menuMaterial);
             menuGroup.add(menuBackground);
 
-            // Create menu items
+            // Create menu items with optimized canvas sizes
             const menuItems = ['Earth', 'Scilla', 'Volcanic', 'Venus'];
             const menuTexts = menuItems.map((text, index) => {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
-                canvas.width = 256;
-                canvas.height = 64;
+                canvas.width = 128; // Reduced from 256
+                canvas.height = 32; // Reduced from 64
                 
                 ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 32px Arial';
+                ctx.font = 'bold 24px Arial'; // Reduced font size
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText(text, canvas.width/2, canvas.height/2);
 
                 const texture = new THREE.CanvasTexture(canvas);
+                texture.minFilter = THREE.LinearFilter;
+                texture.generateMipmaps = false;
                 const material = new THREE.MeshBasicMaterial({ 
                     map: texture,
                     transparent: true,
@@ -109,7 +128,7 @@ const ARManager = () => {
             });
 
             menuTexts.forEach(text => menuGroup.add(text));
-            menuGroup.position.set(0.25, 0.6, -1); // Position menu 1 meter in front
+            menuGroup.position.set(0.8, 0.8, -1); // Position menu in top right corner
             arScene.add(menuGroup);
 
             // Keep track of the current model
