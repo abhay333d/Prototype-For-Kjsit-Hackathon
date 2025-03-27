@@ -128,7 +128,7 @@ const ARManager = () => {
             });
 
             menuTexts.forEach(text => menuGroup.add(text));
-            menuGroup.position.set(0.8, 0.8, -1); // Position menu in top right corner
+            menuGroup.position.set(0.2, 0.6, -1); // Position menu in top right corner
             arScene.add(menuGroup);
 
             // Keep track of the current model
