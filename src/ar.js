@@ -25,10 +25,12 @@ const ARManager = () => {
             );
             const arRenderer = new THREE.WebGLRenderer({
                 canvas: arCanvas,
-                alpha: true
+                alpha: true,
+                powerPreference: "high-performance",
+                antialias: false
             });
+            arRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             arRenderer.setSize(window.innerWidth, window.innerHeight);
-            arRenderer.setPixelRatio(window.devicePixelRatio);
 
             // Load environment texture
             const loader = new RGBELoader();
